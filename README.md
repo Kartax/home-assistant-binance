@@ -15,4 +15,12 @@ Features:
 Manually add this repository by using the "three-dots-menu" at the top right in HACS.
 
 ### Configuration
-_TBD_
+Configure the sensor(s) in ``configuration.yaml``. 
+```
+sensor:
+  - platform: binance
+    symbols:
+      - BTCUSDT
+      - ETHUSDT
+      - ...
+```
