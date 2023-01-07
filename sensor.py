@@ -1,6 +1,7 @@
 """sensor"""
 
 import logging
+import binance
 from datetime import timedelta
 import voluptuous as vol
 import homeassistant.helpers.config_validation as cv
@@ -35,12 +36,15 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
 
 
 class KartaxBinanceSensor(Entity):
+    
     def __init__(self, name, symbol, icon, unit):
         self._name = name
         self._symbol = symbol
         self._icon = icon
         self._unit = unit
         self._state = STATE_UNKNOWN
+        
+        self.binance_client = binance.Client()
 
     @property
     def name(self):
@@ -64,8 +68,9 @@ class KartaxBinanceSensor(Entity):
 
     async def async_added_to_hass(self):
         self.hass.helpers.event.async_track_time_interval(
-            self.update, timedelta(seconds=10)
+            self.update, timedelta(seconds=30)
         )
 
     def update(self, now=None):
-        self._state = "updated"
+        ticker = self.binance_client.finance.get_ticker(symbol='BTCUSDT')
+        self._state = ticker['lastPrice']

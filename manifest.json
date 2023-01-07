@@ -4,7 +4,7 @@
     "version": "0.1.0",
     "integration_type": "hub",
     "iot_class": "cloud_polling",
-    "reqirements": [],
+    "reqirements": ["binance==0.3"],
     "codeowners": [
       "@Kartax"
     ],

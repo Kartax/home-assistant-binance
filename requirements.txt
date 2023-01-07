@@ -7,6 +7,7 @@ atomicwrites-homeassistant==1.4.1
 attrs==22.1.0
 awesomeversion==22.9.0
 bcrypt==3.1.7
+binance==0.3
 certifi==2022.12.7
 cffi==1.15.1
 charset-normalizer==2.1.1
