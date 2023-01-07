@@ -3,15 +3,17 @@
 import logging
 from datetime import timedelta
 import voluptuous as vol
-
 import homeassistant.helpers.config_validation as cv
 from homeassistant.components.sensor import PLATFORM_SCHEMA
+from homeassistant.helpers.entity import Entity
 from homeassistant.const import (
     CONF_ICON,
     CONF_UNIT_OF_MEASUREMENT,
     STATE_UNKNOWN,
 )
-from homeassistant.helpers.entity import Entity
+from .const import (
+    CONF_SYMBOL
+)
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -28,16 +30,15 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
     icon = config.get(CONF_ICON)
     unit = config.get(CONF_UNIT_OF_MEASUREMENT, )    
 
-    add_entities([KartaxBasicSensor(symbol, icon, unit)], True)
+    add_entities([KartaxBinanceSensor(symbol, icon, unit)], True)
 
-class KartaxBasicSensor(Entity):
 
+class KartaxBinanceSensor(Entity):
     def __init__(self, name, icon, unit):
         self._name = name
         self._icon = icon
         self._unit = unit
         self._state = STATE_UNKNOWN
-        self._counter = 0
 
     @property
     def name(self):
@@ -61,5 +62,4 @@ class KartaxBasicSensor(Entity):
         )
 
     def update(self, now=None):
-        self._counter += 0.1
-        self._state = self._counter
+        self._state = "updated"
