@@ -1,3 +1,3 @@
 """constants"""
 
-CONF_SYMBOL = "symbol"
+CONF_SYMBOLS = "symbols"
