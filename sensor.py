@@ -29,13 +29,15 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
     symbol = config.get(CONF_SYMBOL)
     icon = config.get(CONF_ICON)
     unit = config.get(CONF_UNIT_OF_MEASUREMENT, )    
+    name = "Binance "+symbol.upper()
 
-    add_entities([KartaxBinanceSensor(symbol, icon, unit)], True)
+    add_entities([KartaxBinanceSensor(name, symbol, icon, unit)], True)
 
 
 class KartaxBinanceSensor(Entity):
-    def __init__(self, name, icon, unit):
+    def __init__(self, name, symbol, icon, unit):
         self._name = name
+        self._symbol = symbol
         self._icon = icon
         self._unit = unit
         self._state = STATE_UNKNOWN
@@ -43,6 +45,10 @@ class KartaxBinanceSensor(Entity):
     @property
     def name(self):
         return self._name
+
+    @property
+    def symbol(self):
+        return self._symbol
 
     @property
     def icon(self):
