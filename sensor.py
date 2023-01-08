@@ -26,9 +26,10 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
     symbols = config.get(CONF_SYMBOLS)
 
     for symbol in symbols:
-        add_entities([KartaxBinanceSensor(symbol)], True)
+        _LOGGER.debug("Setup BinanceSensor: %s", symbol)
+        add_entities([BinanceSensor(symbol)], True)
 
-class KartaxBinanceSensor(Entity):
+class BinanceSensor(Entity):
 
     def __init__(self, symbol):
         self._attr_device_class = DEVICE_CLASS_MONETARY
@@ -59,6 +60,8 @@ class KartaxBinanceSensor(Entity):
         )
 
     def update(self):
+        _LOGGER.debug("Updating: %s", self._name)
+        
         url = "https://api.binance.com/api/v3/ticker?symbol="+self._symbol
         response = requests.request("GET", url, headers={}, data={}, timeout=5)
         self._data = response.json()
