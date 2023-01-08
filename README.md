@@ -13,8 +13,7 @@ Features:
  - [ ] support configuration via the UI
  - [ ]  fetch personal account balance over secured api
 
-| ![Binance Logo](images/screenshot_2.png) | ![Binance Logo](images/screenshot_1.png) |
-|---|---|
+![screenshot_2](images/screenshot_2.png) ![screenshot_1](images/screenshot_1.png) 
 
 
 ### Installation
