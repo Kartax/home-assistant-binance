@@ -13,6 +13,10 @@ Features:
  - **[in progress]** support configuration via the UI
  - **[planned]** fetch personal account balance over secured api
 
+
+![Binance Logo](images/screenshot_1.png)
+![Binance Logo](images/screenshot_2.png)
+
 ### Installation
 Manually add this repository by using the "three-dots-menu" at the top right in HACS.
 
