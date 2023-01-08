@@ -8,14 +8,13 @@
 A Home Assistant Integration for the cryptocurrency trading platform [Binance](https://www.binance.com/en).
 
 Features:
- - pull prices of a configurable list of currency pairs (e.g. BTCUSDT, XRPBTC...)
- - additional attributes for each currency pair (priceChange, highPrice, lowPrice, volume, ...)
- - **[in progress]** support configuration via the UI
- - **[planned]** fetch personal account balance over secured api
+ - [x] pull prices of a configurable list of currency pairs (e.g. BTCUSDT, XRPBTC...)
+ - [x] additional attributes for each currency pair (priceChange, highPrice, lowPrice, volume, ...)
+ - [ ] support configuration via the UI
+ - [ ]  fetch personal account balance over secured api
 
-
-![Binance Logo](images/screenshot_1.png)
-![Binance Logo](images/screenshot_2.png)
+<img src="images/screenshot_1.png" width="300">
+<img src="images/screenshot_2.png" width="300">
 
 ### Installation
 Manually add this repository by using the "three-dots-menu" at the top right in HACS.
