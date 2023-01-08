@@ -13,8 +13,8 @@ Features:
  - [ ] support configuration via the UI
  - [ ]  fetch personal account balance over secured api
 
-<img src="images/screenshot_1.png" width="300">
-<img src="images/screenshot_2.png" width="300">
+<img src="images/screenshot_1.png" width="300" alt="![screenshot_1](images/screenshot_1.png)">
+<img src="images/screenshot_2.png" width="300" alt="![screenshot_2](images/screenshot_2.png)">
 
 ### Installation
 Manually add this repository by using the "three-dots-menu" at the top right in HACS.
