@@ -1,7 +1,7 @@
 [![hacs_badge](https://img.shields.io/badge/HACS-Default-41BDF5.svg)](https://github.com/hacs/integration)
 [![hacs_badge](https://img.shields.io/badge/HACS-Custom-41BDF5.svg)](https://github.com/hacs/integration)
 
-
+[![Open your Home Assistant instance and open a repository inside the Home Assistant Community Store.](https://my.home-assistant.io/badges/hacs_repository.svg)](https://my.home-assistant.io/redirect/hacs_repository/?owner=Kartax&repository=home-assistant-binance&category=integration)
 
 ![Binance Logo](images/binance_logo.png)
 
@@ -18,7 +18,8 @@ Features:
 
 
 ### Installation
-Manually add this repository by using the "three-dots-menu" at the top right in HACS.
+I recommend to install this integration via HACS. Simply search for it\
+or manually add this repository by using the "three-dots-menu" at the top right in HACS.
 
 ### Configuration
 Configure the sensor(s) in ``configuration.yaml``. 
