@@ -2,6 +2,7 @@
 
 import logging
 from datetime import timedelta
+import decimal
 import requests
 from requests import RequestException
 from homeassistant.helpers.entity import Entity
@@ -55,7 +56,7 @@ class BinanceTickerSensor(Entity):
                 raise RequestException(response.json())
             
             self._data = response.json()
-            self._state = float(self._data['lastPrice'])
+            self._state = decimal.Decimal(self._data['lastPrice'])
             
         except RequestException as request_exception:
             logger.error("Error updating %s - %s", self._name, request_exception)
