@@ -44,8 +44,8 @@ class BinanceTickerSensor(Entity):
             self.update, timedelta(seconds=60)
         )
 
-    def update(self):
-        logger.debug("Updating %s", self._name)
+    def update(self, *args):
+        logger.debug("Updating %s - args", self._name, args)
         
         url = "https://api.binance.com/api/v3/ticker?symbol="+self._symbol
         
