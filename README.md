@@ -21,6 +21,7 @@ Features:
 I recommend to install this integration via HACS. Simply search for it\
 or manually add this repository by using the "three-dots-menu" at the top right in HACS.
 
+
 ### Configuration
 Configure the sensor(s) in ``configuration.yaml``. 
 ```
