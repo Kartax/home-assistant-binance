@@ -6,8 +6,9 @@ import decimal
 import requests
 from requests import RequestException
 from homeassistant.helpers.entity import Entity
+from homeassistant.components.sensor import SensorDeviceClass
 from homeassistant.const import (
-    STATE_UNKNOWN, DEVICE_CLASS_MONETARY
+    STATE_UNKNOWN
 )
 
 
@@ -17,7 +18,7 @@ logger = logging.getLogger(__name__)
 class BinanceTickerSensor(Entity):
 
     def __init__(self, symbol):
-        self._attr_device_class = DEVICE_CLASS_MONETARY
+        self._attr_device_class = SensorDeviceClass.MONETARY
         self._name = "Binance Ticker "+symbol.upper()
         self._symbol = symbol
         self._state = STATE_UNKNOWN
