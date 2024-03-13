@@ -17,10 +17,11 @@ logger = logging.getLogger(__name__)
 
 class BinanceTickerSensor(Entity):
 
-    def __init__(self, symbol):
+    def __init__(self, symbol, decimals):
         self._attr_device_class = SensorDeviceClass.MONETARY
         self._name = "Binance Ticker "+symbol.upper()
         self._symbol = symbol
+        self._decimals = decimals
         self._state = STATE_UNKNOWN
         self._data = {}
 
@@ -31,6 +32,10 @@ class BinanceTickerSensor(Entity):
     @property
     def symbol(self):
         return self._symbol
+
+    @property
+    def decimals(self):
+        return self.decimals
 
     @property
     def state(self):
@@ -57,7 +62,7 @@ class BinanceTickerSensor(Entity):
                 raise RequestException(response.json())
             
             self._data = response.json()
-            self._state = decimal.Decimal(self._data['lastPrice'])
+            self._state = round(decimal.Decimal(self._data['lastPrice']), self._decimals)
             
         except RequestException as request_exception:
             logger.error("Error updating %s - %s", self._name, request_exception)

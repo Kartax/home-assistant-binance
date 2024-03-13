@@ -11,8 +11,6 @@ A Home Assistant Integration for the cryptocurrency trading platform [Binance](h
 Features:
  - [x] pull prices of a configurable list of currency pairs (e.g. BTCUSDT, XRPBTC...)
  - [x] additional attributes for each currency pair (priceChange, highPrice, lowPrice, volume, ...)
- - [ ] support configuration via the UI
- - [ ]  fetch personal account balance over secured api
 
 ![screenshot_2](images/screenshot_2.png) ![screenshot_1](images/screenshot_1.png) 
 
@@ -27,6 +25,7 @@ Configure the sensor(s) in ``configuration.yaml``.
 ```
 sensor:
   - platform: binance
+    decimals: 8
     symbols:
       - BTCUSDT
       - ETHUSDT
