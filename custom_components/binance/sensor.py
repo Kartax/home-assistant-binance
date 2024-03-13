@@ -28,5 +28,5 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
         decimals = '8'
 
     for symbol in symbols:
-        logger.debug("Setup BinanceTickerSensor %s", symbol)
+        logger.debug("Setup BinanceTickerSensor %s %s", symbol, decimals)
         add_entities([BinanceTickerSensor(symbol, int(decimals))], True)

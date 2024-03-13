@@ -35,7 +35,7 @@ class BinanceTickerSensor(Entity):
 
     @property
     def decimals(self):
-        return self.decimals
+        return self._decimals
 
     @property
     def state(self):
