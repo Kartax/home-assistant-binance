@@ -26,6 +26,7 @@ Configure the sensor(s) in ``configuration.yaml``.
 sensor:
   - platform: binance
     decimals: 8
+    update_interval: 60
     symbols:
       - BTCUSDT
       - ETHUSDT
