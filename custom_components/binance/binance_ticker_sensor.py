@@ -10,7 +10,6 @@ import asyncio
 logger = logging.getLogger(__name__)
 
 class BinanceTickerSensor(Entity):
-
     def __init__(self, symbol, decimals, updateInterval):
         self._attr_device_class = SensorDeviceClass.MONETARY
         self._name = "Binance Ticker " + symbol.upper()
@@ -66,4 +65,5 @@ class BinanceTickerSensor(Entity):
         except Exception as e:
             logger.error("Error updating %s - %s", self._name, e)
 
+        await asyncio.sleep(self._updateInterval)
         asyncio.create_task(self.schedule_update())
