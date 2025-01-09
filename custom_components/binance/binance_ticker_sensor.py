@@ -7,6 +7,7 @@ import aiohttp
 from homeassistant.helpers.entity import Entity
 from homeassistant.helpers.event import async_call_later
 from homeassistant.const import STATE_UNKNOWN
+from homeassistant.components.sensor import SensorDeviceClass  # Korrekte Importzeile
 
 logger = logging.getLogger(__name__)
 
