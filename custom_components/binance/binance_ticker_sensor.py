@@ -5,6 +5,7 @@ from datetime import timedelta
 import decimal
 import aiohttp
 from homeassistant.helpers.entity import Entity
+from homeassistant.helpers.event import async_track_time_interval
 from homeassistant.components.sensor import SensorDeviceClass
 from homeassistant.const import STATE_UNKNOWN
 
@@ -46,9 +47,14 @@ class BinanceTickerSensor(Entity):
         return self._data
 
     async def async_added_to_hass(self):
+        logger.info(
+            "Adding %s with update interval of %s seconds",
+            self._name,
+            self._updateInterval,
+        )
         self.async_on_remove(
-            self.hass.helpers.event.async_track_time_interval(
-                self.async_update, timedelta(seconds=self._updateInterval)
+            async_track_time_interval(
+                self.hass, self.async_update, timedelta(seconds=self._updateInterval)
             )
         )
 
