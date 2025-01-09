@@ -3,23 +3,18 @@
 import logging
 from datetime import timedelta
 import decimal
-import requests
-from requests import RequestException
+import aiohttp
 from homeassistant.helpers.entity import Entity
 from homeassistant.components.sensor import SensorDeviceClass
-from homeassistant.const import (
-    STATE_UNKNOWN
-)
-
+from homeassistant.const import STATE_UNKNOWN
 
 logger = logging.getLogger(__name__)
-
 
 class BinanceTickerSensor(Entity):
 
     def __init__(self, symbol, decimals, updateInterval):
         self._attr_device_class = SensorDeviceClass.MONETARY
-        self._name = "Binance Ticker "+symbol.upper()
+        self._name = "Binance Ticker " + symbol.upper()
         self._symbol = symbol
         self._decimals = decimals
         self._updateInterval = updateInterval
@@ -51,24 +46,22 @@ class BinanceTickerSensor(Entity):
         return self._data
 
     async def async_added_to_hass(self):
-        self.hass.helpers.event.async_track_time_interval(
-            self.update, timedelta(seconds=self._updateInterval)
+        self.async_on_remove(
+            self.hass.helpers.event.async_track_time_interval(
+                self.async_update, timedelta(seconds=self._updateInterval)
+            )
         )
 
-    def update(self, *args):
-        logger.debug("Updating %s - args", self._name, args)
-        
-        url = "https://api.binance.com/api/v3/ticker?symbol="+self._symbol
-        
+    async def async_update(self, *_):
+        logger.debug("Updating %s", self._name)
+
+        url = f"https://api.binance.com/api/v3/ticker?symbol={self._symbol}"
         try:
-            response = requests.request("GET", url, headers={}, data={}, timeout=5)
-            
-            if response.status_code != 200:
-                raise RequestException(response.json())
-            
-            self._data = response.json()
-            self._state = round(decimal.Decimal(self._data['lastPrice']), self._decimals)
-            
-        except RequestException as request_exception:
-            logger.error("Error updating %s - %s", self._name, request_exception)
-        
+            async with aiohttp.ClientSession() as session:
+                async with session.get(url, timeout=5) as response:
+                    if response.status != 200:
+                        raise Exception(f"Error response: {await response.text()}")
+                    self._data = await response.json()
+                    self._state = round(decimal.Decimal(self._data['lastPrice']), self._decimals)
+        except Exception as e:
+            logger.error("Error updating %s - %s", self._name, e)
