@@ -44,7 +44,7 @@ class BinanceTickerSensor(Entity):
         return self._data
 
     async def async_added_to_hass(self):
-        logger.info(
+        logger.debug(
             "Adding %s with update interval of %s seconds",
             self._name,
             self._updateInterval,
@@ -52,7 +52,7 @@ class BinanceTickerSensor(Entity):
         await self.schedule_update()
 
     async def schedule_update(self):
-        logger.info("Updating %s at %s", self._name, datetime.now())
+        logger.debug("Updating %s at %s", self._name, datetime.now())
 
         url = f"https://api.binance.com/api/v3/ticker?symbol={self._symbol}"
         try:
