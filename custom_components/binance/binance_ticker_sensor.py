@@ -5,8 +5,7 @@ from datetime import timedelta
 import decimal
 import aiohttp
 from homeassistant.helpers.entity import Entity
-from homeassistant.helpers.event import async_track_time_interval
-from homeassistant.components.sensor import SensorDeviceClass
+from homeassistant.helpers.event import async_call_later
 from homeassistant.const import STATE_UNKNOWN
 
 logger = logging.getLogger(__name__)
@@ -47,19 +46,18 @@ class BinanceTickerSensor(Entity):
         return self._data
 
     async def async_added_to_hass(self):
+        # Log, um den Intervallwert zu prüfen
         logger.info(
             "Adding %s with update interval of %s seconds",
             self._name,
             self._updateInterval,
         )
-        self.async_on_remove(
-            async_track_time_interval(
-                self.hass, self.async_update, timedelta(seconds=self._updateInterval)
-            )
-        )
+        # Starte den ersten Update-Aufruf
+        await self.schedule_update()
 
-    async def async_update(self, *_):
-        logger.debug("Updating %s", self._name)
+    async def schedule_update(self):
+        # Loggt den Zeitpunkt des Updates
+        logger.info("Updating %s at %s", self._name, datetime.now())
 
         url = f"https://api.binance.com/api/v3/ticker?symbol={self._symbol}"
         try:
@@ -71,3 +69,6 @@ class BinanceTickerSensor(Entity):
                     self._state = round(decimal.Decimal(self._data['lastPrice']), self._decimals)
         except Exception as e:
             logger.error("Error updating %s - %s", self._name, e)
+
+        # Nach dem Update den nächsten Aufruf in _updateInterval Sekunden planen
+        async_call_later(self.hass, self._updateInterval, lambda _: self.hass.async_create_task(self.schedule_update()))
