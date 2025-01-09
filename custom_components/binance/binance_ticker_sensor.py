@@ -1,13 +1,13 @@
 """binance_ticker_sensor"""
 
 import logging
-from datetime import timedelta
+from datetime import timedelta, datetime
 import decimal
 import aiohttp
 from homeassistant.helpers.entity import Entity
 from homeassistant.helpers.event import async_call_later
 from homeassistant.const import STATE_UNKNOWN
-from homeassistant.components.sensor import SensorDeviceClass  # Korrekte Importzeile
+from homeassistant.components.sensor import SensorDeviceClass
 
 logger = logging.getLogger(__name__)
 
@@ -58,7 +58,7 @@ class BinanceTickerSensor(Entity):
 
     async def schedule_update(self):
         # Loggt den Zeitpunkt des Updates
-        logger.info("Updating %s at %s", self._name, datetime.now())
+        logger.info("Updating %s at %s", self._name, datetime.now())  # datetime.now() wird jetzt korrekt verwendet
 
         url = f"https://api.binance.com/api/v3/ticker?symbol={self._symbol}"
         try:
