@@ -52,7 +52,7 @@ class BinanceTickerSensor(Entity):
 
     async def async_added_to_hass(self):
         self.hass.helpers.event.async_track_time_interval(
-            self.update, timedelta(seconds=updateInterval)
+            self.update, timedelta(seconds=self._updateInterval)
         )
 
     def update(self, *args):
