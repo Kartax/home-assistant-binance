@@ -49,7 +49,7 @@ class BinanceTickerSensor(Entity):
             self._name,
             self._updateInterval,
         )
-        await self.schedule_update()
+        asyncio.create_task(self.schedule_update())
 
     async def schedule_update(self):
         logger.debug("Updating %s at %s", self._name, datetime.now())
