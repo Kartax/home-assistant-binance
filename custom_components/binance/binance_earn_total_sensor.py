@@ -106,7 +106,7 @@ class BinanceEarnTotalSensor(Entity):
             self._name,
             self._update_interval,
         )
-        await self.schedule_update()
+        asyncio.create_task(self.schedule_update())
 
     async def schedule_update(self):
         logger.debug("Updating earn total sensor %s at %s", self._name, datetime.now())
