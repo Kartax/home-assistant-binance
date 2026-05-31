@@ -21,45 +21,41 @@ or manually add this repository by using the "three-dots-menu" at the top right 
 
 ### Configuration
 
-#### Without API key (ticker only)
+This integration is configured via the Home Assistant GUI — no YAML required.
 
-```yaml
-sensor:
-  - platform: binance
-    decimals: 8
-    update_interval: 60
-    symbols:
-      - BTCUSDT
-      - ETHUSDT
-```
+> **Migrating from YAML?** Existing `configuration.yaml` entries are automatically imported on first startup. You can then remove them from your YAML file.
 
-Creates one price sensor per symbol.
+#### Step 1 — Add the integration
 
-#### With API key (ticker + wallet + earn)
+Go to **Settings → Integrations → Add Integration** and search for **Binance**.
 
-```yaml
-sensor:
-  - platform: binance
-    symbols:
-      - BTCUSDT
-      - ETHUSDT
-    api_key: !secret binance_api_key
-    api_secret: !secret binance_api_secret
-    wallet_assets:            # optional: per-asset Spot sensors
-      - BTC
-      - ETH
-      - USDT
-    wallet_earn_assets:       # optional: per-asset Earn sensors
-      - USDT
-      - BTC
-```
+Enter your credentials and preferences:
+
+| Field | Required | Default | Description |
+|-------|----------|---------|-------------|
+| API Key | No | _(empty)_ | Binance API key — needed for wallet and earn sensors |
+| API Secret | No | _(empty)_ | Binance API secret |
+| Decimal places | No | 8 | Number of decimal places for sensor values |
+| Update interval (seconds) | No | 60 | How often sensors refresh |
+
+#### Step 2 — Configure symbols and assets
+
+After the integration is added, click the **gear icon** (Configure) to set up your ticker symbols and wallet assets:
+
+| Field | Description | Example |
+|-------|-------------|---------|
+| Ticker symbols | Comma-separated trading pairs (required) | `BTCUSDT,ETHUSDT` |
+| Spot wallet assets | Comma-separated assets for per-asset Spot sensors (optional) | `BTC,ETH,USDT` |
+| Earn wallet assets | Comma-separated assets for per-asset Earn sensors (optional) | `USDT,BTC` |
+
+#### Sensors created
 
 | Sensor | Created when | Description |
 |--------|--------------|-------------|
 | Binance Ticker {SYMBOL} | always | Current price of the trading pair |
-| Binance Wallet Total (USD) | api_key set | Estimated Spot wallet value in USD |
-| Binance Wallet {ASSET} | wallet_assets configured | Spot balance per asset |
-| Binance Earn Total (USD) | api_key set | Estimated Earn portfolio value in USD (flexible + locked) |
-| Binance Earn {ASSET} | wallet_earn_assets configured | Earn balance per asset (flexible + locked combined) |
+| Binance Wallet Total (USD) | API key set | Estimated Spot wallet value in USD |
+| Binance Wallet {ASSET} | Spot wallet assets configured | Spot balance per asset |
+| Binance Earn Total (USD) | API key set | Estimated Earn portfolio value in USD (flexible + locked) |
+| Binance Earn {ASSET} | Earn wallet assets configured | Earn balance per asset (flexible + locked combined) |
 
-Store your API credentials in `secrets.yaml` and reference them with `!secret`. The API key only needs read permissions — no trading permissions required.
+The API key only needs read permissions — no trading permissions required.
