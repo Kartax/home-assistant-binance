@@ -1,4 +1,4 @@
-"""Binance Wallet Total Sensor - estimated total wallet value in USD"""
+"""Binance Wallet Total Sensor - estimated Spot wallet value in USD"""
 
 import logging
 import asyncio
@@ -17,7 +17,7 @@ BINANCE_API_BASE = "https://api.binance.com"
 
 
 class BinanceWalletTotalSensor(Entity):
-    """Sensor showing estimated total wallet value in USD."""
+    """Sensor showing estimated total Spot wallet value in USD."""
 
     def __init__(self, api_key, api_secret, decimals, update_interval):
         self._api_key = api_key
@@ -53,7 +53,6 @@ class BinanceWalletTotalSensor(Entity):
         return self._data
 
     def _sign_params(self, params: str) -> str:
-        """Create HMAC-SHA256 signature for Binance API."""
         return hmac.new(
             self._api_secret.encode("utf-8"),
             params.encode("utf-8"),
@@ -80,7 +79,6 @@ class BinanceWalletTotalSensor(Entity):
 
         try:
             async with aiohttp.ClientSession() as session:
-                # Fetch all user assets with BTC valuation
                 async with session.post(
                     f"{BINANCE_API_BASE}/sapi/v3/asset/getUserAsset",
                     data=post_body,
@@ -93,7 +91,6 @@ class BinanceWalletTotalSensor(Entity):
 
                 total_btc = sum(float(a.get("btcValuation", 0)) for a in assets)
 
-                # Fetch current BTC/USDT price (no auth needed)
                 async with session.get(
                     f"{BINANCE_API_BASE}/api/v3/ticker/price?symbol=BTCUSDT",
                     timeout=10,
@@ -103,7 +100,7 @@ class BinanceWalletTotalSensor(Entity):
                     price_data = await price_response.json()
                     btc_price = float(price_data["price"])
 
-                total_usd = round(total_btc * btc_price, self._decimals)
+                total_usd = round(total_btc * btc_price, 2)
 
                 asset_breakdown = {
                     a["asset"]: round(float(a.get("btcValuation", 0)), 8)
