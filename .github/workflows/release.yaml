@@ -1,0 +1,47 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*"
+      - "[0-9]+.[0-9]*"
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Tag to build & upload asset for (e.g. v2.0.4)"
+        required: true
+        type: string
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Determine tag
+        id: tag
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            echo "ref=${{ github.event.inputs.tag }}" >> "$GITHUB_OUTPUT"
+            git fetch origin tag "${{ github.event.inputs.tag }}"
+            git checkout "${{ github.event.inputs.tag }}"
+          else
+            echo "ref=${GITHUB_REF_NAME}" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Build release artifact
+        run: |
+          cd "${{ github.workspace }}"
+          mkdir -p artifact/custom_components
+          cp -r custom_components/binance artifact/custom_components/
+          cd artifact
+          zip -r ../binance-integration.zip custom_components/
+
+      - name: Upload release asset
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          gh release upload "${{ steps.tag.outputs.ref }}" binance-integration.zip --clobber
