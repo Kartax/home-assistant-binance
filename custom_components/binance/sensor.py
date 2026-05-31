@@ -10,10 +10,12 @@ from .const import (
     CONF_UPDATE_INVERVAL,
     CONF_API_KEY,
     CONF_API_SECRET,
+    CONF_WALLET_TOTAL,
 )
 
 from .binance_ticker_sensor import BinanceTickerSensor
 from .binance_wallet_sensor import BinanceWalletSensor
+from .binance_wallet_total_sensor import BinanceWalletTotalSensor
 
 
 logger = logging.getLogger(__name__)
@@ -26,6 +28,7 @@ PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend(
         vol.Optional(CONF_API_KEY): cv.string,
         vol.Optional(CONF_API_SECRET): cv.string,
         vol.Optional("wallet_assets"): vol.All(cv.ensure_list, [cv.string]),
+        vol.Optional(CONF_WALLET_TOTAL, default=False): cv.boolean,
     }
 )
 
@@ -36,6 +39,7 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
     api_key = config.get(CONF_API_KEY)
     api_secret = config.get(CONF_API_SECRET)
     wallet_assets = config.get("wallet_assets", [])
+    wallet_total = config.get(CONF_WALLET_TOTAL, False)
 
     # Ticker sensors (always created)
     for symbol in symbols:
@@ -52,6 +56,9 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
         for asset in wallet_assets:
             logger.debug("Setup BinanceWalletSensor %s", asset)
             add_entities([BinanceWalletSensor(asset, api_key, api_secret, decimals, updateInterval)], True)
+        if wallet_total:
+            logger.debug("Setup BinanceWalletTotalSensor")
+            add_entities([BinanceWalletTotalSensor(api_key, api_secret, decimals, updateInterval)], True)
     elif wallet_assets:
         logger.warning(
             "Binance 'wallet_assets' configured but 'api_key' and/or 'api_secret' are missing. "
