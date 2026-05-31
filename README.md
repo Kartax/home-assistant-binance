@@ -36,10 +36,13 @@ sensor:
       - ETHUSDT
 ```
 
-#### Ticker + Spot wallet (API key required)
+#### Ticker + Wallet + Earn (API key required)
 
-Set `wallet: true` to enable Spot wallet sensors. This always creates a total USD value sensor.
-Optionally add `wallet_assets` to also create per-asset balance sensors.
+When `api_key` and `api_secret` are present, the integration automatically creates a Spot wallet total
+sensor and a Simple Earn total sensor. No extra flags needed.
+
+Optionally add `wallet_assets` to also create per-asset Spot balance sensors, and `wallet_earn_assets`
+to also create per-asset Earn sensors.
 
 To use wallet features you need a Binance API key with **read permissions** (no trading permissions required).
 Create one at [Binance API Management](https://www.binance.com/en/my/settings/api-management).
@@ -52,15 +55,16 @@ sensor:
       - ETHUSDT
     api_key: !secret binance_api_key
     api_secret: !secret binance_api_secret
-
-    wallet: true
-    wallet_assets:        # optional — omit to only get the total sensor
+    wallet_assets:            # optional: per-asset Spot sensors
       - BTC
       - ETH
       - USDT
+    wallet_earn_assets:       # optional: per-asset Earn sensors
+      - USDT
+      - BTC
 ```
 
-`wallet: true` always creates `sensor.binance_wallet_total_usd`:
+`sensor.binance_wallet_total_usd` is always created when an API key is configured:
 
 | Attribute | Description |
 |-----------|-------------|
@@ -80,26 +84,7 @@ Each `wallet_assets` entry additionally creates `sensor.binance_wallet_<ASSET>`:
 
 The sensor **state** is the `free` balance. Unit of measurement is the asset symbol (e.g. `BTC`).
 
-#### Ticker + Simple Earn (API key required)
-
-Set `wallet_earn: true` to enable Simple Earn sensors. This always creates a total USD value sensor.
-Optionally add `wallet_earn_assets` to also create per-asset sensors showing combined holdings.
-
-```yaml
-sensor:
-  - platform: binance
-    symbols:
-      - BTCUSDT
-    api_key: !secret binance_api_key
-    api_secret: !secret binance_api_secret
-
-    wallet_earn: true
-    wallet_earn_assets:   # optional — omit to only get the total sensor
-      - USDT
-      - BTC
-```
-
-`wallet_earn: true` always creates `sensor.binance_earn_total_usd`:
+`sensor.binance_earn_total_usd` is always created when an API key is configured:
 
 | Attribute | Description |
 |-----------|-------------|
@@ -122,31 +107,6 @@ Each `wallet_earn_assets` entry additionally creates `sensor.binance_earn_<ASSET
 | `locked_rewards` | Total reward amount (locked) |
 
 The sensor **state** is `flexible_amount + locked_amount`. Unit of measurement is the asset symbol.
-
-#### Full example
-
-```yaml
-sensor:
-  - platform: binance
-    decimals: 8
-    update_interval: 60
-    symbols:
-      - BTCUSDT
-      - ETHUSDT
-    api_key: !secret binance_api_key
-    api_secret: !secret binance_api_secret
-
-    wallet: true
-    wallet_assets:
-      - BTC
-      - ETH
-      - USDT
-
-    wallet_earn: true
-    wallet_earn_assets:
-      - USDT
-      - BTC
-```
 
 > **Security note:** Store your API credentials in `secrets.yaml` and reference them via `!secret`:
 > ```yaml
