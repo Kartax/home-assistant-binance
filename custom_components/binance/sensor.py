@@ -7,10 +7,13 @@ from homeassistant.components.sensor import PLATFORM_SCHEMA
 from .const import (
     CONF_SYMBOLS,
     CONF_DECIMALS,
-    CONF_UPDATE_INVERVAL
+    CONF_UPDATE_INVERVAL,
+    CONF_API_KEY,
+    CONF_API_SECRET,
 )
 
 from .binance_ticker_sensor import BinanceTickerSensor
+from .binance_wallet_sensor import BinanceWalletSensor
 
 
 logger = logging.getLogger(__name__)
@@ -19,7 +22,10 @@ PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend(
     {
         vol.Required(CONF_SYMBOLS): vol.All(cv.ensure_list, [cv.string]),
         vol.Optional(CONF_DECIMALS, default=8): cv.positive_int,
-        vol.Optional(CONF_UPDATE_INVERVAL, default=60): cv.positive_int
+        vol.Optional(CONF_UPDATE_INVERVAL, default=60): cv.positive_int,
+        vol.Optional(CONF_API_KEY): cv.string,
+        vol.Optional(CONF_API_SECRET): cv.string,
+        vol.Optional("wallet_assets"): vol.All(cv.ensure_list, [cv.string]),
     }
 )
 
@@ -27,7 +33,27 @@ def setup_platform(hass, config, add_entities, discovery_info=None):
     symbols = config.get(CONF_SYMBOLS)
     decimals = config.get(CONF_DECIMALS)
     updateInterval = config.get(CONF_UPDATE_INVERVAL)
+    api_key = config.get(CONF_API_KEY)
+    api_secret = config.get(CONF_API_SECRET)
+    wallet_assets = config.get("wallet_assets", [])
 
+    # Ticker sensors (always created)
     for symbol in symbols:
         logger.debug("Setup BinanceTickerSensor %s %s %s", symbol, decimals, updateInterval)
         add_entities([BinanceTickerSensor(symbol, decimals, updateInterval)], True)
+
+    # Wallet sensors (only if api_key and api_secret are provided)
+    if api_key and api_secret:
+        if not wallet_assets:
+            logger.warning(
+                "Binance API key and secret provided, but no 'wallet_assets' configured. "
+                "Add a 'wallet_assets' list to track your balances."
+            )
+        for asset in wallet_assets:
+            logger.debug("Setup BinanceWalletSensor %s", asset)
+            add_entities([BinanceWalletSensor(asset, api_key, api_secret, decimals, updateInterval)], True)
+    elif wallet_assets:
+        logger.warning(
+            "Binance 'wallet_assets' configured but 'api_key' and/or 'api_secret' are missing. "
+            "Wallet sensors will not be created."
+        )

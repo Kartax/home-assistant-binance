@@ -11,6 +11,7 @@ A Home Assistant Integration for the cryptocurrency trading platform [Binance](h
 Features:
  - [x] pull prices of a configurable list of currency pairs (e.g. BTCUSDT, XRPBTC...)
  - [x] additional attributes for each currency pair (priceChange, highPrice, lowPrice, volume, ...)
+ - [x] optionally pull wallet balances for configured assets (requires Binance API key & secret)
 
 ![screenshot_2](images/screenshot_2.png) ![screenshot_1](images/screenshot_1.png) 
 
@@ -21,8 +22,10 @@ or manually add this repository by using the "three-dots-menu" at the top right 
 
 
 ### Configuration
-Configure the sensor(s) in ``configuration.yaml``. 
-```
+Configure the sensor(s) in ``configuration.yaml``.
+
+#### Ticker only (no API key required)
+```yaml
 sensor:
   - platform: binance
     decimals: 8
@@ -30,5 +33,42 @@ sensor:
     symbols:
       - BTCUSDT
       - ETHUSDT
-      - ...
 ```
+
+#### Ticker + Wallet balances (API key required)
+
+To enable wallet balance sensors you need a Binance API key with **read permissions** (no trading permissions required).
+Create one at [Binance API Management](https://www.binance.com/en/my/settings/api-management).
+
+```yaml
+sensor:
+  - platform: binance
+    decimals: 8
+    update_interval: 60
+    symbols:
+      - BTCUSDT
+      - ETHUSDT
+    api_key: "YOUR_BINANCE_API_KEY"
+    api_secret: "YOUR_BINANCE_API_SECRET"
+    wallet_assets:
+      - BTC
+      - ETH
+      - USDT
+      - BNB
+```
+
+Each `wallet_assets` entry creates a dedicated sensor named `sensor.binance_wallet_<ASSET>` with the following attributes:
+
+| Attribute | Description |
+|-----------|-------------|
+| `free`    | Available (spendable) balance |
+| `locked`  | Balance currently locked in open orders |
+| `total`   | `free` + `locked` |
+
+The sensor **state** is the `free` balance. Unit of measurement is the asset symbol (e.g. `BTC`).
+
+> **Security note:** It is recommended to store your API credentials in `secrets.yaml` and reference them via `!secret`:
+> ```yaml
+> api_key: !secret binance_api_key
+> api_secret: !secret binance_api_secret
+> ```
