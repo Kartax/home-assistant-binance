@@ -36,6 +36,39 @@ PLATFORM_SCHEMA = PLATFORM_SCHEMA.extend(
 )
 
 
+async def async_setup_entry(hass, entry, async_add_entities):
+    data = entry.data
+    options = entry.options
+
+    api_key = data.get(CONF_API_KEY, "")
+    api_secret = data.get(CONF_API_SECRET, "")
+    decimals = data.get(CONF_DECIMALS, 8)
+    update_interval = data.get(CONF_UPDATE_INVERVAL, 60)
+
+    symbols_str = options.get(CONF_SYMBOLS, data.get(CONF_SYMBOLS, ""))
+    symbols = [s.strip() for s in symbols_str.split(",") if s.strip()]
+
+    wallet_assets_str = options.get(CONF_WALLET_ASSETS, data.get(CONF_WALLET_ASSETS, ""))
+    wallet_assets = [s.strip() for s in wallet_assets_str.split(",") if s.strip()] if wallet_assets_str else []
+
+    wallet_earn_assets_str = options.get(CONF_WALLET_EARN_ASSETS, data.get(CONF_WALLET_EARN_ASSETS, ""))
+    wallet_earn_assets = [s.strip() for s in wallet_earn_assets_str.split(",") if s.strip()] if wallet_earn_assets_str else []
+
+    entities = []
+    for symbol in symbols:
+        entities.append(BinanceTickerSensor(symbol, decimals, update_interval))
+
+    if api_key and api_secret:
+        entities.append(BinanceWalletTotalSensor(api_key, api_secret, decimals, update_interval))
+        entities.append(BinanceEarnTotalSensor(api_key, api_secret, decimals, update_interval))
+        for asset in wallet_assets:
+            entities.append(BinanceWalletSensor(asset, api_key, api_secret, decimals, update_interval))
+        for asset in wallet_earn_assets:
+            entities.append(BinanceEarnAssetSensor(asset, api_key, api_secret, decimals, update_interval))
+
+    async_add_entities(entities, True)
+
+
 def setup_platform(hass, config, add_entities, discovery_info=None):
     symbols = config.get(CONF_SYMBOLS)
     decimals = config.get(CONF_DECIMALS)

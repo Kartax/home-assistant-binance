@@ -1,0 +1,35 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "Binance",
+        "description": "Configure your Binance integration. API key and secret are optional — only needed for wallet and earn sensors.",
+        "data": {
+          "api_key": "API Key (optional)",
+          "api_secret": "API Secret (optional)",
+          "decimals": "Decimal places",
+          "update_interval": "Update interval (seconds)"
+        }
+      }
+    },
+    "error": {
+      "unknown": "Unexpected error"
+    },
+    "abort": {
+      "already_configured": "Binance is already configured."
+    }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Binance Options",
+        "description": "Configure symbols and wallet assets. Use comma-separated values, e.g. BTCUSDT,ETHUSDT",
+        "data": {
+          "symbols": "Ticker symbols (e.g. BTCUSDT,ETHUSDT)",
+          "wallet_assets": "Spot wallet assets (e.g. BTC,ETH,USDT)",
+          "wallet_earn_assets": "Earn wallet assets (e.g. USDT,BTC)"
+        }
+      }
+    }
+  }
+}
