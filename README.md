@@ -11,9 +11,10 @@ A Home Assistant Integration for the cryptocurrency trading platform [Binance](h
 Features:
  - [x] pull prices of a configurable list of currency pairs (e.g. BTCUSDT, XRPBTC...)
  - [x] additional attributes for each currency pair (priceChange, highPrice, lowPrice, volume, ...)
- - [x] optionally pull wallet balances for configured assets (requires Binance API key & secret)
+ - [x] optionally pull Spot wallet balances and total USD value (requires Binance API key & secret)
+ - [x] optionally pull Simple Earn (flexible + locked) balances and total USD value (requires Binance API key & secret)
 
-![screenshot_2](images/screenshot_2.png) ![screenshot_1](images/screenshot_1.png) 
+![screenshot_2](images/screenshot_2.png) ![screenshot_1](images/screenshot_1.png)
 
 
 ### Installation
@@ -35,70 +36,94 @@ sensor:
       - ETHUSDT
 ```
 
-#### Ticker + Wallet balances (API key required)
+#### Ticker + Spot wallet (API key required)
 
-To enable wallet balance sensors you need a Binance API key with **read permissions** (no trading permissions required).
+Set `wallet: true` to enable Spot wallet sensors. This always creates a total USD value sensor.
+Optionally add `wallet_assets` to also create per-asset balance sensors.
+
+To use wallet features you need a Binance API key with **read permissions** (no trading permissions required).
 Create one at [Binance API Management](https://www.binance.com/en/my/settings/api-management).
 
 ```yaml
 sensor:
   - platform: binance
-    decimals: 8
-    update_interval: 60
     symbols:
       - BTCUSDT
       - ETHUSDT
-    api_key: "YOUR_BINANCE_API_KEY"
-    api_secret: "YOUR_BINANCE_API_SECRET"
-    wallet_assets:
+    api_key: !secret binance_api_key
+    api_secret: !secret binance_api_secret
+
+    wallet: true
+    wallet_assets:        # optional — omit to only get the total sensor
       - BTC
       - ETH
       - USDT
-      - BNB
 ```
 
-Each `wallet_assets` entry creates a dedicated sensor named `sensor.binance_wallet_<ASSET>` with the following attributes:
+`wallet: true` always creates `sensor.binance_wallet_total_usd`:
 
 | Attribute | Description |
 |-----------|-------------|
-| `free`    | Available (spendable) balance |
-| `locked`  | Balance currently locked in open orders |
-| `total`   | `free` + `locked` |
-
-The sensor **state** is the `free` balance. Unit of measurement is the asset symbol (e.g. `BTC`).
-
-#### Ticker + Wallet balances + Total USD value
-
-Add `wallet_total: true` to also create a single sensor showing your estimated total portfolio value in USD:
-
-```yaml
-sensor:
-  - platform: binance
-    decimals: 2
-    update_interval: 60
-    symbols:
-      - BTCUSDT
-    api_key: "YOUR_BINANCE_API_KEY"
-    api_secret: "YOUR_BINANCE_API_SECRET"
-    wallet_assets:
-      - BTC
-      - ETH
-    wallet_total: true
-```
-
-This creates `sensor.binance_wallet_total_usd` with the following attributes:
-
-| Attribute | Description |
-|-----------|-------------|
-| `total_btc` | Sum of all asset BTC valuations (8 decimals) |
+| `total_btc` | Sum of all asset BTC valuations |
 | `btc_price_usd` | Current BTC/USDT price used for conversion |
 | `asset_breakdown` | Dict of `asset -> btcValuation` for all non-zero assets |
 
-The sensor **state** is the total estimated USD value (rounded to `decimals`). The `wallet_total` sensor requires `api_key` and `api_secret` — it is silently skipped if credentials are absent.
+The sensor **state** is the estimated total Spot wallet value in USD. Uses `POST /sapi/v3/asset/getUserAsset`.
 
-#### Funding wallet, Simple Earn Flexible & Locked positions
+Each `wallet_assets` entry additionally creates `sensor.binance_wallet_<ASSET>`:
 
-Track balances across all four Binance wallet types. All three new keys require `api_key` and `api_secret`.
+| Attribute | Description |
+|-----------|-------------|
+| `free` | Available (spendable) balance |
+| `locked` | Balance currently locked in open orders |
+| `total` | `free` + `locked` |
+
+The sensor **state** is the `free` balance. Unit of measurement is the asset symbol (e.g. `BTC`).
+
+#### Ticker + Simple Earn (API key required)
+
+Set `wallet_earn: true` to enable Simple Earn sensors. This always creates a total USD value sensor.
+Optionally add `wallet_earn_assets` to also create per-asset sensors showing combined holdings.
+
+```yaml
+sensor:
+  - platform: binance
+    symbols:
+      - BTCUSDT
+    api_key: !secret binance_api_key
+    api_secret: !secret binance_api_secret
+
+    wallet_earn: true
+    wallet_earn_assets:   # optional — omit to only get the total sensor
+      - USDT
+      - BTC
+```
+
+`wallet_earn: true` always creates `sensor.binance_earn_total_usd`:
+
+| Attribute | Description |
+|-----------|-------------|
+| `flexible_total_usd` | Sum of all flexible earn positions in USD |
+| `locked_total_usd` | Sum of all locked earn positions in USD |
+| `asset_breakdown` | Dict of `asset -> { flexible, locked, total_usd }` |
+
+The sensor **state** is the combined earn value in USD (rounded to 2 decimals). Fetches all positions from
+`GET /sapi/v1/simple-earn/flexible/position` and `GET /sapi/v1/simple-earn/locked/position`, then resolves
+each asset to USD using `GET /api/v3/ticker/price`. USD-pegged stablecoins (USDT, USDC, BUSD, etc.) are
+treated as 1.0 USD without a price lookup.
+
+Each `wallet_earn_assets` entry additionally creates `sensor.binance_earn_<ASSET>`:
+
+| Attribute | Description |
+|-----------|-------------|
+| `flexible_amount` | Amount held in flexible earn |
+| `locked_amount` | Amount held in locked earn |
+| `flexible_rewards` | Cumulative real-time rewards earned (flexible) |
+| `locked_rewards` | Total reward amount (locked) |
+
+The sensor **state** is `flexible_amount + locked_amount`. Unit of measurement is the asset symbol.
+
+#### Full example
 
 ```yaml
 sensor:
@@ -108,57 +133,22 @@ sensor:
     symbols:
       - BTCUSDT
       - ETHUSDT
-    api_key: "YOUR_BINANCE_API_KEY"
-    api_secret: "YOUR_BINANCE_API_SECRET"
+    api_key: !secret binance_api_key
+    api_secret: !secret binance_api_secret
+
+    wallet: true
     wallet_assets:
       - BTC
       - ETH
       - USDT
-    wallet_total: true
-    funding_assets:
-      - BTC
+
+    wallet_earn: true
+    wallet_earn_assets:
       - USDT
-    earn_flexible_assets:
-      - USDT
-      - ETH
-    earn_locked_assets:
       - BTC
-      - BNB
 ```
 
-**Funding wallet** (`funding_assets`) — creates `sensor.binance_funding_<ASSET>`:
-
-| Attribute | Description |
-|-----------|-------------|
-| `free` | Available balance |
-| `locked` | Balance locked in pending operations |
-| `freeze` | Frozen balance |
-| `withdrawing` | Balance pending withdrawal |
-| `total` | `free` + `locked` + `freeze` |
-
-The sensor **state** is the `free` balance. Uses `POST /sapi/v1/asset/get-funding-asset`.
-
-**Simple Earn Flexible** (`earn_flexible_assets`) — creates `sensor.binance_earn_flexible_<ASSET>`:
-
-| Attribute | Description |
-|-----------|-------------|
-| `total_amount` | Sum of all invested amounts across positions |
-| `cumulative_rewards` | Total cumulative real-time rewards earned |
-| `positions` | List of `{ productId, totalAmount }` per position |
-
-The sensor **state** is the total invested amount. Uses `GET /sapi/v1/simple-earn/flexible/position` (paginated).
-
-**Simple Earn Locked** (`earn_locked_assets`) — creates `sensor.binance_earn_locked_<ASSET>`:
-
-| Attribute | Description |
-|-----------|-------------|
-| `total_amount` | Sum of all locked amounts across positions |
-| `total_rewards` | Total reward amounts across positions |
-| `positions` | List of `{ projectId, amount, status }` per position |
-
-The sensor **state** is the total locked amount. Uses `GET /sapi/v1/simple-earn/locked/position` (paginated).
-
-> **Security note:** It is recommended to store your API credentials in `secrets.yaml` and reference them via `!secret`:
+> **Security note:** Store your API credentials in `secrets.yaml` and reference them via `!secret`:
 > ```yaml
 > api_key: !secret binance_api_key
 > api_secret: !secret binance_api_secret
