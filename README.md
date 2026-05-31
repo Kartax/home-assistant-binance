@@ -67,6 +67,35 @@ Each `wallet_assets` entry creates a dedicated sensor named `sensor.binance_wall
 
 The sensor **state** is the `free` balance. Unit of measurement is the asset symbol (e.g. `BTC`).
 
+#### Ticker + Wallet balances + Total USD value
+
+Add `wallet_total: true` to also create a single sensor showing your estimated total portfolio value in USD:
+
+```yaml
+sensor:
+  - platform: binance
+    decimals: 2
+    update_interval: 60
+    symbols:
+      - BTCUSDT
+    api_key: "YOUR_BINANCE_API_KEY"
+    api_secret: "YOUR_BINANCE_API_SECRET"
+    wallet_assets:
+      - BTC
+      - ETH
+    wallet_total: true
+```
+
+This creates `sensor.binance_wallet_total_usd` with the following attributes:
+
+| Attribute | Description |
+|-----------|-------------|
+| `total_btc` | Sum of all asset BTC valuations (8 decimals) |
+| `btc_price_usd` | Current BTC/USDT price used for conversion |
+| `asset_breakdown` | Dict of `asset -> btcValuation` for all non-zero assets |
+
+The sensor **state** is the total estimated USD value (rounded to `decimals`). The `wallet_total` sensor requires `api_key` and `api_secret` — it is silently skipped if credentials are absent.
+
 > **Security note:** It is recommended to store your API credentials in `secrets.yaml` and reference them via `!secret`:
 > ```yaml
 > api_key: !secret binance_api_key
