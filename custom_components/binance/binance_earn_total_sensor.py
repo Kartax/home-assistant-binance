@@ -149,7 +149,7 @@ class BinanceEarnTotalSensor(Entity):
                 non_stable = [a for a in all_assets if a not in USD_STABLE]
 
                 if non_stable:
-                    symbols_param = json.dumps([f"{a}USDT" for a in non_stable])
+                    symbols_param = json.dumps([f"{a}USDT" for a in non_stable], separators=(",", ":"))
                     async with session.get(
                         f"{BINANCE_API_BASE}/api/v3/ticker/price",
                         params={"symbols": symbols_param},
