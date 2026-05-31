@@ -198,7 +198,7 @@ class BinanceEarnTotalSensor(Entity):
                     total_usd,
                 )
         except Exception as e:
-            logger.error("Error updating earn total sensor %s - %s", self._name, e)
+            logger.error("Error updating earn total sensor %s - %s", self._name, e, exc_info=True)
 
         await asyncio.sleep(self._update_interval)
         asyncio.create_task(self.schedule_update())
