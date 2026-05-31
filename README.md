@@ -15,38 +15,27 @@ Features:
 
 
 ### Installation
-I recommend to install this integration via HACS. Simply search for it\
-or manually add this repository by using the "three-dots-menu" at the top right in HACS.
+1. Install via HACS: search for "Binance Integration" in HACS → Download
+2. Restart Home Assistant
+3. Go to Settings → Integrations → Add Integration → search "Binance" → click it
 
+### Configuration (first setup)
+In the setup dialog:
+- **API Key**: leave empty for ticker-only, or enter your Binance API key (read-only)
+- **API Secret**: enter your Binance API secret (required if API key is set)
+- **Decimal places**: default 8
+- **Update interval**: default 60 seconds
 
-### Configuration
+### Configuration (symbols & assets)
+After adding, click the gear icon ⚙️ → Options:
+- **Ticker symbols** (required): comma-separated, e.g. `BTCUSDT,ETHUSDT`
+- **Spot wallet assets** (optional): comma-separated, e.g. `BTC,ETH,USDT`
+- **Earn wallet assets** (optional): comma-separated, e.g. `USDT,BTC`
 
-This integration is configured entirely through the Home Assistant GUI — no YAML required.
+### Migration note
+If you had a `configuration.yaml` entry for Binance (v1.x), it is automatically imported when HA starts after the update. You can then remove the YAML block.
 
-#### Step 1 – Add the integration
-
-Go to **Settings → Integrations → Add Integration**, search for **Binance**, and click it.
-
-Fill in:
-- **API Key** (optional – leave empty for ticker-only use)
-- **API Secret** (optional – leave empty for ticker-only use)
-- **Decimal places** (default: 8)
-- **Update interval in seconds** (default: 60)
-
-Click **Submit**.
-
-#### Step 2 – Configure symbols and assets
-
-Click the **gear icon ⚙️** next to Binance → **Options**.
-
-Fill in:
-- **Ticker symbols** (comma-separated, e.g. `BTCUSDT,ETHUSDT`) — required
-- **Spot wallet assets** (comma-separated, e.g. `BTC,ETH,USDT`) — optional, only useful with API key
-- **Earn wallet assets** (comma-separated, e.g. `USDT,BTC`) — optional, only useful with API key
-
-Click **Submit**. Home Assistant will reload the integration and create the sensors.
-
-#### Sensors created
+### Sensors created
 
 | Sensor | Created when | Description |
 |--------|--------------|-------------|
@@ -57,8 +46,3 @@ Click **Submit**. Home Assistant will reload the integration and create the sens
 | Binance Earn {ASSET} | Earn wallet assets configured | Earn balance per asset (flexible + locked combined) |
 
 The API key only needs read permissions — no trading permissions required.
-
-#### Migration note
-
-If you had a `configuration.yaml` entry, it is automatically imported when Home Assistant restarts after the update.
-You can then safely remove the YAML block.
