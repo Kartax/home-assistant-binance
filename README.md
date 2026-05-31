@@ -96,6 +96,68 @@ This creates `sensor.binance_wallet_total_usd` with the following attributes:
 
 The sensor **state** is the total estimated USD value (rounded to `decimals`). The `wallet_total` sensor requires `api_key` and `api_secret` — it is silently skipped if credentials are absent.
 
+#### Funding wallet, Simple Earn Flexible & Locked positions
+
+Track balances across all four Binance wallet types. All three new keys require `api_key` and `api_secret`.
+
+```yaml
+sensor:
+  - platform: binance
+    decimals: 8
+    update_interval: 60
+    symbols:
+      - BTCUSDT
+      - ETHUSDT
+    api_key: "YOUR_BINANCE_API_KEY"
+    api_secret: "YOUR_BINANCE_API_SECRET"
+    wallet_assets:
+      - BTC
+      - ETH
+      - USDT
+    wallet_total: true
+    funding_assets:
+      - BTC
+      - USDT
+    earn_flexible_assets:
+      - USDT
+      - ETH
+    earn_locked_assets:
+      - BTC
+      - BNB
+```
+
+**Funding wallet** (`funding_assets`) — creates `sensor.binance_funding_<ASSET>`:
+
+| Attribute | Description |
+|-----------|-------------|
+| `free` | Available balance |
+| `locked` | Balance locked in pending operations |
+| `freeze` | Frozen balance |
+| `withdrawing` | Balance pending withdrawal |
+| `total` | `free` + `locked` + `freeze` |
+
+The sensor **state** is the `free` balance. Uses `POST /sapi/v1/asset/get-funding-asset`.
+
+**Simple Earn Flexible** (`earn_flexible_assets`) — creates `sensor.binance_earn_flexible_<ASSET>`:
+
+| Attribute | Description |
+|-----------|-------------|
+| `total_amount` | Sum of all invested amounts across positions |
+| `cumulative_rewards` | Total cumulative real-time rewards earned |
+| `positions` | List of `{ productId, totalAmount }` per position |
+
+The sensor **state** is the total invested amount. Uses `GET /sapi/v1/simple-earn/flexible/position` (paginated).
+
+**Simple Earn Locked** (`earn_locked_assets`) — creates `sensor.binance_earn_locked_<ASSET>`:
+
+| Attribute | Description |
+|-----------|-------------|
+| `total_amount` | Sum of all locked amounts across positions |
+| `total_rewards` | Total reward amounts across positions |
+| `positions` | List of `{ projectId, amount, status }` per position |
+
+The sensor **state** is the total locked amount. Uses `GET /sapi/v1/simple-earn/locked/position` (paginated).
+
 > **Security note:** It is recommended to store your API credentials in `secrets.yaml` and reference them via `!secret`:
 > ```yaml
 > api_key: !secret binance_api_key
