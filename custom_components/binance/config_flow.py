@@ -93,20 +93,15 @@ class OptionsFlowHandler(config_entries.OptionsFlow):
 
     async def async_step_init(self, user_input=None):
         """Manage symbols and asset lists."""
-        errors = {}
 
         if user_input is not None:
-            symbols_str = user_input.get(CONF_SYMBOLS, "").strip()
-            if not symbols_str:
-                errors[CONF_SYMBOLS] = "symbols_required"
-            else:
-                return self.async_create_entry(title="", data=user_input)
+            return self.async_create_entry(title="", data=user_input)
 
         current_options = self.config_entry.options
 
         schema = vol.Schema(
             {
-                vol.Required(
+                vol.Optional(
                     CONF_SYMBOLS,
                     default=current_options.get(CONF_SYMBOLS, ""),
                 ): str,
@@ -124,5 +119,4 @@ class OptionsFlowHandler(config_entries.OptionsFlow):
         return self.async_show_form(
             step_id="init",
             data_schema=schema,
-            errors=errors,
         )
